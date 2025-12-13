@@ -12,6 +12,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Entity
 @Table(name = "clients")
+@Builder
 public class Client {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
