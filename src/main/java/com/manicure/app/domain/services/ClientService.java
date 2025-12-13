@@ -1,11 +1,15 @@
 package com.manicure.app.domain.services;
 
 import com.manicure.app.domain.dtos.ClientRegisterDto;
+import com.manicure.app.domain.entities.Appointment;
 import com.manicure.app.domain.entities.Client;
+import com.manicure.app.domain.exceptions.BadRequestException;
 import com.manicure.app.domain.repositories.ClientRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -28,6 +32,7 @@ public class ClientService {
                 .clientName(dto.getClientName())
                 .whatsappId(dto.getWhatsappId())
                 .creationDate(LocalDateTime.now())
+                .appointments(new ArrayList<>())
                 .build();
 
         repository.save(client);
@@ -40,27 +45,51 @@ public class ClientService {
 
     public Client findById(UUID id) {
         return repository.findById(id).orElseThrow(
-                ()-> new com.manicure.app.domain.exceptions.BadRequestException("por favor, informe um ID válido")
+                ()-> new BadRequestException("por favor, informe um ID válido")
         );
     }
 
     public Client findByWhatsapId(String whatsappId) {
         return repository.findByWhatsappId(whatsappId).orElseThrow(
-                ()-> new com.manicure.app.domain.exceptions.BadRequestException("por favor, informe um ID de whatsapp válido")
+                ()-> new BadRequestException("por favor, informe um ID de whatsapp válido")
         );
     }
 
     public void deleteClient(String whatsappId, UUID id)  {
         Client c;
+        if(!validateParams(whatsappId, id)){
+            throw new BadRequestException("por favor, informe pelo menos um campo necessário para a busca");
+        }
         if(whatsappId == null){
             c = repository.findById(id).orElseThrow(
-                    () -> new com.manicure.app.domain.exceptions.BadRequestException("por favor, informe um ID válido")
+                    () -> new BadRequestException("por favor, informe um ID válido")
             );
         } else {
             c = repository.findByWhatsappId(whatsappId).orElseThrow(
-                    () -> new com.manicure.app.domain.exceptions.BadRequestException("por favor, informe um ID de whatsapp válido")
+                    () -> new BadRequestException("por favor, informe um ID de whatsapp válido")
             );
         }
         repository.delete(c);
+    }
+
+    public List<Appointment> getClientAppointmentsList(String whatsappId, UUID id){
+        Client c;
+        if(!validateParams(whatsappId, id)){
+            throw new BadRequestException("por favor, informe pelo menos um campo necessário para a busca");
+        }
+        if(whatsappId == null){
+            c = repository.findById(id).orElseThrow(
+                    () -> new BadRequestException("por favor, informe um ID válido")
+            );
+        } else {
+            c = repository.findByWhatsappId(whatsappId).orElseThrow(
+                    () -> new BadRequestException("por favor, informe um ID de whatsapp válido")
+            );
+        }
+        return c.getAppointments();
+    }
+
+    private Boolean validateParams(String whatsappId, UUID id){
+        return !(whatsappId == null && id == null);
     }
 }

@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -20,5 +21,9 @@ public class Client {
 
     private String whatsappId;
     private String clientName;
+
+    @OneToMany(mappedBy = "client", cascade = CascadeType.ALL)
+    private List<Appointment> appointments;
+
     private LocalDateTime creationDate;
 }
