@@ -4,6 +4,7 @@ import com.manicure.app.domain.dtos.AppointmentRegisterDto;
 import com.manicure.app.domain.entities.Appointment;
 import com.manicure.app.domain.entities.Client;
 import com.manicure.app.domain.enuns.Services;
+import com.manicure.app.domain.exceptions.BadRequestException;
 import com.manicure.app.domain.exceptions.EmptyPropertyException;
 import com.manicure.app.domain.exceptions.NotFoundException;
 import com.manicure.app.domain.repositories.AppointmentRepository;
@@ -34,21 +35,22 @@ public class AppointmentService {
                 .date(dto.getDate())
                 .service(dto.getService())
                 .clientName(dto.getClientName().strip().toLowerCase())
-                .client(client)
                 .creationDate(LocalDateTime.now())
                 .build();
-        repository.save(appointment);
         clientService.addAppointmentToList(client, appointment);
+        repository.save(appointment);
         return appointment;
     }
 
-    public void deleteAppointment(UUID id){
-        if(id == null){
-            throw new EmptyPropertyException("por favor, informe um id");
+    public void deleteAppointment(UUID id, String clientName){
+        if(id == null || clientName == null){
+            throw new EmptyPropertyException("por favor, informe todos os daddos");
         }
+        Client c = clientService.findByName(clientName);
         Appointment a = repository.findById(id).orElseThrow(
                 ()-> new NotFoundException("Não foi possível encontrar um agendamento com esse id")
         );
+        c.removeAppointment(a);
         repository.delete(a);
     }
 
@@ -66,6 +68,13 @@ public class AppointmentService {
         } else {
             return new ArrayList<>();
         }
+    }
+
+    public List<Appointment> listLastFiveAppointmentsByClientWhatsappId(String clientName){
+        if (clientName == null){
+            throw new BadRequestException("Por favor, informe um id de whatsapp");
+        }
+        return repository.findTop5ByClientName(clientName);
     }
 
     public List<Appointment> listAllAppointments(){

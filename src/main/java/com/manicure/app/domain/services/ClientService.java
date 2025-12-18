@@ -29,7 +29,7 @@ public class ClientService {
             throw new com.manicure.app.domain.exceptions.BadRequestException("por favor preencha todos os campos");
         }
         Client client = Client.builder()
-                .clientName(dto.getClientName().strip().toLowerCase())
+                .clientName(dto.getClientName().strip().toLowerCase().replace(" ","_"))
                 .whatsappId(dto.getWhatsappId())
                 .creationDate(LocalDateTime.now())
                 .appointments(new ArrayList<>())
@@ -47,7 +47,7 @@ public class ClientService {
         if(clientName == null){
             throw new BadRequestException("Por favor informe um nome válido");
         }
-        return repository.findByName(clientName).orElseThrow(
+        return repository.findByClientName(clientName).orElseThrow(
                 ()-> new BadRequestException("Não foi possível encontrar um cliente com esse nome")
         );
     }
@@ -62,6 +62,10 @@ public class ClientService {
         return repository.findByWhatsappId(whatsappId).orElseThrow(
                 ()-> new BadRequestException("por favor, informe um ID de whatsapp válido")
         );
+    }
+
+    public boolean isClientRegistered(String whatsappId){
+        return repository.findByWhatsappId(whatsappId).isPresent();
     }
 
     public void deleteClient(String whatsappId, UUID id)  {
@@ -103,9 +107,6 @@ public class ClientService {
     }
 
     public void addAppointmentToList(Client c, Appointment a){
-        List<Appointment> appointments = c.getAppointments();
-        appointments.add(a);
-        c.setAppointments(appointments);
-        repository.save(c);
+        c.addAppointment(a);
     }
 }
