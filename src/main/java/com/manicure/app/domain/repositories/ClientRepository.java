@@ -10,5 +10,5 @@ import java.util.UUID;
 @Repository
 public interface ClientRepository extends JpaRepository<Client, UUID> {
     Optional<Client> findByWhatsappId(String whatsappId);
-    Optional<Client> findByName(String name);
+    Optional<Client> findByClientName(String name);
 }
