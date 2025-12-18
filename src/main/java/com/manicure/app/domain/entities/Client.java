@@ -25,5 +25,29 @@ public class Client {
     @OneToMany(mappedBy = "client", cascade = CascadeType.ALL)
     private List<Appointment> appointments;
 
+    @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Message> messages;
+
     private LocalDateTime creationDate;
+
+    public void addAppointment(Appointment a){
+        appointments.add(a);
+        a.setClient(this);
+    }
+
+    public void removeAppointment(Appointment a){
+        appointments.remove(a);
+        a.setClient(null);
+    }
+
+    public void addMessage(Message m){
+        messages.add(m);
+        m.setClient(this);
+    }
+
+    public void removeMessage(Message m){
+        messages.remove(m);
+        m.setClient(null);
+    }
+
 }
