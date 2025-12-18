@@ -13,7 +13,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
-@RestController("/appointments")
+@RestController()
+@RequestMapping("/appointments")
 public class AppointmentController {
     private final AppointmentService service;
 
@@ -43,8 +44,13 @@ public class AppointmentController {
     }
 
     @DeleteMapping(path = "/delete")
-    public void deleteAppointment(@RequestParam UUID id){
-        service.deleteAppointment(id);
+    public void deleteAppointment(@RequestParam UUID id, @RequestParam String clientName){
+        service.deleteAppointment(id, clientName);
+    }
+
+    @GetMapping(path = "listLastFiveFromClient")
+    public ResponseEntity<List<Appointment>> findLastFiveAppointments(@RequestParam String clientName){
+        return ResponseEntity.ok(service.listLastFiveAppointmentsByClientWhatsappId(clientName));
     }
 
 }

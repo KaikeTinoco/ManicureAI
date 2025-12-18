@@ -12,7 +12,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
-@RestController("/clients")
+@RestController()
+@RequestMapping("/clients")
 public class ClientController {
     private final ClientService service;
 
@@ -52,6 +53,11 @@ public class ClientController {
     public ResponseEntity<List<Appointment>> listAppointments(@RequestParam(required = false) UUID id,
                                                               @RequestParam(required = false) String whatsappId){
         return ResponseEntity.ok(service.getClientAppointmentsList(whatsappId, id));
+    }
+
+    @GetMapping(path = "/verify")
+    public ResponseEntity<Boolean> isClientRegistered(@RequestParam String whatsappId){
+        return ResponseEntity.ok(service.isClientRegistered(whatsappId));
     }
 
 
